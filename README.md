@@ -16,6 +16,8 @@
     Maven
     
     Docker
+
+    Github Actions
     
 **How to Run the Project**
 1. git clone https://github.com/Svyat-Programmer/playermaker.git
