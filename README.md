@@ -20,8 +20,9 @@
 **How to Run the Project**
 1. git clone https://github.com/Svyat-Programmer/playermaker.git
 2. Navigate to the project directory: cd playermaker
-3. Build the Docker image: docker build -t playermaker .
-4. Run the Docker container docker run -p 8080:8080 playermaker
+3. Build the project using Maven: mvn clean package
+4. Build the Docker image: docker build -t playermaker .
+5. Run the Docker container docker run -p 8080:8080 playermaker
  Now the application is accessible at http://localhost:8080.
 
 **API Endpoints**
