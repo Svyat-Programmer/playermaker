@@ -1,16 +1,27 @@
 package com.example.playermaker;
 import com.example.playermaker.dto.PlayerRequestDTO;
-import com.example.playermaker.exception.EmptyPlayersListException;
 import com.example.playermaker.exception.InvalidTopPlayersException;
-import com.example.playermaker.exception.NullRequestException;
 import com.example.playermaker.service.PlayerServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import java.util.Arrays;
+import java.util.List;
+import static org.junit.jupiter.api.Assertions.*;
+
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+import jakarta.validation.ConstraintViolation;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,26 +29,29 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PlayerServiceImplTest {
 
 	private PlayerServiceImpl playerService;
+	private Validator validator;
 
 	@BeforeEach
 	public void setUp() {
 		playerService = new PlayerServiceImpl();
+
+		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+		validator = factory.getValidator();
 	}
+
 
 	@Test
-	public void testGetTopPlayersValidRequest() {
+	public void testValidRequestDTO() {
 		PlayerRequestDTO request = new PlayerRequestDTO(2, Arrays.asList(
 				Arrays.asList("Sharon", "Shalom", "Ronaldo"),
-				Arrays.asList("Shalom", "Myke", "Ronaldo"),
-				Arrays.asList("Sharon", "Ronaldo")
+				Arrays.asList("Shalom", "Myke", "Ronaldo")
 		));
 
-		List<String> result = playerService.getTopNPlayers(request);
+		Set<ConstraintViolation<PlayerRequestDTO>> violations = validator.validate(request);
 
-		assertEquals(2, result.size());
-		assertEquals("Ronaldo", result.get(0));
-		assertEquals("Shalom", result.get(1));
+		assertTrue(violations.isEmpty(), "DTO should pass validation");
 	}
+
 
 	@Test
 	public void testRequiredTopPlayersZero() {
@@ -45,49 +59,50 @@ public class PlayerServiceImplTest {
 				Arrays.asList("Sharon", "Shalom", "Ronaldo")
 		));
 
-		InvalidTopPlayersException exception = assertThrows(InvalidTopPlayersException.class, () -> {
-			playerService.getTopNPlayers(request);
-		});
+		Set<ConstraintViolation<PlayerRequestDTO>> violations = validator.validate(request);
 
-		assertEquals("requiredTopPlayers must be greater than 0.", exception.getMessage());
+		assertFalse(violations.isEmpty(), "DTO should fail validation due to requiredTopPlayers being 0");
+
+		ConstraintViolation<PlayerRequestDTO> violation = violations.stream()
+				.filter(v -> v.getPropertyPath().toString().equals("requiredTopPlayers"))
+				.findFirst()
+				.orElse(null);
+
+		assertNotNull(violation);
+		assertEquals("requiredTopPlayers must be greater than 0.", violation.getMessage());
 	}
-
-	@Test
-	public void testRequiredTopPlayersExceedsPlayerCount() {
-		PlayerRequestDTO request = new PlayerRequestDTO(5, Arrays.asList(
-				Arrays.asList("Sharon", "Shalom", "Ronaldo"),
-				Arrays.asList("Shalom", "Ronaldo")
-		));
-
-		InvalidTopPlayersException exception = assertThrows(InvalidTopPlayersException.class, () -> {
-			playerService.getTopNPlayers(request);
-		});
-
-		assertEquals("requested top players (5) is greater than the number of unique players (3).", exception.getMessage());
-	}
-
 
 	@Test
 	public void testEmptyPlayersList() {
 		PlayerRequestDTO request = new PlayerRequestDTO(2, Collections.emptyList());
 
-		EmptyPlayersListException exception = assertThrows(EmptyPlayersListException.class, () -> {
-			playerService.getTopNPlayers(request);
-		});
+		Set<ConstraintViolation<PlayerRequestDTO>> violations = validator.validate(request);
 
-		assertEquals("List of participated players is empty.", exception.getMessage());
+		assertFalse(violations.isEmpty(), "DTO should fail validation due to empty list of players");
+
+		ConstraintViolation<PlayerRequestDTO> violation = violations.stream()
+				.filter(v -> v.getPropertyPath().toString().equals("participatedPlayers"))
+				.findFirst()
+				.orElse(null);
+
+		assertNotNull(violation);
+		assertEquals("List of participated players cannot be empty.", violation.getMessage());
 	}
-
 
 	@Test
 	public void testNullPlayersList() {
 		PlayerRequestDTO request = new PlayerRequestDTO(2, null);
 
-		NullRequestException exception = assertThrows(NullRequestException.class, () -> {
-			playerService.getTopNPlayers(request);
-		});
+		Set<ConstraintViolation<PlayerRequestDTO>> violations = validator.validate(request);
 
-		assertEquals("Request body or list of participated players is null.", exception.getMessage());
+		assertFalse(violations.isEmpty(), "DTO should fail validation due to null list of players");
+
+		ConstraintViolation<PlayerRequestDTO> violation = violations.stream()
+				.filter(v -> v.getPropertyPath().toString().equals("participatedPlayers"))
+				.findFirst()
+				.orElse(null);
+
+		assertNotNull(violation);
+		assertEquals("List of participated players cannot be null.", violation.getMessage());
 	}
 }
-

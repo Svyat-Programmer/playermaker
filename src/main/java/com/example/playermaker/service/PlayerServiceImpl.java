@@ -1,9 +1,7 @@
 package com.example.playermaker.service;
 
 import com.example.playermaker.dto.PlayerRequestDTO;
-import com.example.playermaker.exception.EmptyPlayersListException;
 import com.example.playermaker.exception.InvalidTopPlayersException;
-import com.example.playermaker.exception.NullRequestException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -13,13 +11,7 @@ public class PlayerServiceImpl implements PlayerService {
 
     @Override
     public List<String> getTopNPlayers(PlayerRequestDTO playerRequestDTO) {
-        if (playerRequestDTO == null || playerRequestDTO.getParticipatedPlayers() == null) {
-            throw new NullRequestException("Request body or list of participated players is null.");
-        }
 
-        if (playerRequestDTO.getParticipatedPlayers().isEmpty()) {
-            throw new EmptyPlayersListException("List of participated players is empty.");
-        }
         Map<String, Integer> playerParticipation = new HashMap<>();
 
         for (List<String> game : playerRequestDTO.getParticipatedPlayers()) {
