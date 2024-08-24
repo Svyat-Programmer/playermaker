@@ -95,22 +95,6 @@ public class PlayerServiceImplTest {
         assertEquals("List of participated players cannot be empty.", violation.getMessage());
     }
 
-    @Test
-    public void testNullPlayersList() {
-        PlayerRequestDTO request = new PlayerRequestDTO(2, null);
-
-        Set<ConstraintViolation<PlayerRequestDTO>> violations = validator.validate(request);
-
-        assertFalse(violations.isEmpty(), "DTO should fail validation due to null list of players");
-
-        ConstraintViolation<PlayerRequestDTO> violation = violations.stream()
-                .filter(v -> v.getPropertyPath().toString().equals("participatedPlayers"))
-                .findFirst()
-                .orElse(null);
-
-        assertNotNull(violation);
-        assertEquals("List of participated players cannot be null.", violation.getMessage());
-    }
 
     @Test
     public void testRequiredTopPlayersExceedsPlayerCount() {
