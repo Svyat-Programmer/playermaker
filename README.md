@@ -5,6 +5,7 @@
 **Playermaker** is a Spring Boot application that provides a REST API for calculating the top players who have participated in the most games. The API takes an array of games with player names and returns the top N players who participated in the most games. It is Home Assignment by Playermaker
 
 **Technologies**
+
     Java 17
     
     Spring Boot
@@ -16,12 +17,15 @@
     Maven
     
     Docker
+
+    Github 
     
 **How to Run the Project**
 1. git clone https://github.com/Svyat-Programmer/playermaker.git
 2. Navigate to the project directory: cd playermaker
-3. Build the Docker image: docker build -t playermaker .
-4. Run the Docker container docker run -p 8080:8080 playermaker
+3. Build the project using Maven: mvn clean package
+4. Build the Docker image: docker build -t playermaker .
+5. Run the Docker container docker run -p 8080:8080 playermaker
  Now the application is accessible at http://localhost:8080.
 
 **API Endpoints**
